@@ -20,7 +20,7 @@ def youtube_api_video_metadata(VID):
         'channelTitle': ''
     }
     #Youtube Comment Tread API config
-    API_KEY = YOUTUBE_API_KEY # Use your youtube data API key
+    API_KEY = config('YOUTUBE_API_KEY') # Use your youtube data API key
     VideoID = VID
     
     URL = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id="+VideoID+"&key="+API_KEY+""
