@@ -9,6 +9,6 @@ dependencies:
   - pyahocorasick
   - wordcloud
   - scikit-learn
-  - pip
+  - pip:
     - contractions
 prefix: /Users/sumanrajsharma/anaconda3/envs/myenv
