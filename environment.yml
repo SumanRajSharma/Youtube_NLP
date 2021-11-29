@@ -10,6 +10,7 @@ dependencies:
   - wordcloud
   - scikit-learn
   - python-decouple
+  - nltk
   - pip:
     - contractions
 prefix: /Users/sumanrajsharma/anaconda3/envs/myenv
