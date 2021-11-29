@@ -5,9 +5,11 @@ import webbrowser
 import pickle
 import os
 import pandas as pd
+import re
 
 from decouple import config
 from topicmapping import topicmapping as tm
+from sentiment import sentiment as sen
 
 # Fetching a youtube video title using youtube API
 def youtube_api_video_metadata(VID):
@@ -101,8 +103,8 @@ def main_panel(menu):
     switcher[menu]()
     
 def video_details_page():
-    st.title("Sentiment Analysis and Topic Modelling on YouTube Video's Comments")
-    data = {'video_id': '', 'comments': '', 'video_meta_data': '', 'topics': ''}
+    st.title("Topic Modelling on YouTube Video's Comments")
+    data = {'video_id': '', 'comments': '', 'video_meta_data': '', 'topics': '', 'slider_value': 0}
     videourl_txtfield = st.empty()
     video_url = videourl_txtfield.text_input(label="YouTube Video URL", value="", key="txt_url")
     if not video_url:
@@ -117,8 +119,13 @@ def video_details_page():
                 display_video_metadata(video_meta_data)
                 # dump result in pickle file
                 f = open('store.pckl', 'wb')
-                pickle.dump({'video_id': video_id, 'comments': comments, 'video_meta_data': video_meta_data, 'topics': '', slider_value:0}, f)
+                pickle.dump({'video_id': video_id, 'comments': comments, 'video_meta_data': video_meta_data, 'topics': '', 'slider_value': 0}, f)
                 f.close()
+
+                # Creating a dataframe
+                df = pd.DataFrame(comments, columns=['Comments'])
+                df.to_csv('sample_comments.csv', index=False)
+
             else:
                 st.error('Error: {}'.format(err))
         else: 
@@ -132,14 +139,31 @@ def video_details_page():
                 display_video_metadata(data['video_meta_data'])
 
 def sentiment_analysis_page():
-    st.title("Sentiment Analysis Result on YouTube Video's Comments")
-    # Create a text element and let the reader know the data is loading.
-    data_load_state = st.text('Loading data...')
+    st.title("Sentiment Analysis on YouTube Video's Comments")
+
+    st.subheader('Comments Dataframe [Raw]')
+    df_placeholder = st.empty()
+    search_txtfield = st.empty()
+    search_keyword = search_txtfield.text_input(label="Filter comments using keywords.", value="", key="txt_search")
+    btn_submit =  st.button(label="Search")
+
+    st.write(search_keyword)
     # Load data into the dataframe.
     data = load_data("sample_comments.csv")
+    df = data
+    df_placeholder.dataframe(data)
     # Notify the reader that the data was successfully loaded.
-    data_load_state.text("Done! (using st.cache)")
-    st.dataframe(data)
+
+    if btn_submit:
+        if search_keyword:
+            df = data.loc[data['Comments'].str.contains(search_keyword.replace(' ','|'), case=False)]
+            df_placeholder.dataframe(df)
+    
+    btn_sentiment = st.button(label="Run Sentiment Analysis")
+    clean_df_placeholder = st.empty()
+    if btn_sentiment:
+        df = sen.fetch_sentiment(df)
+        clean_df_placeholder.dataframe(df)
 
 def load_data(filename):
     df = pd.read_csv(filename)
@@ -163,16 +187,16 @@ def topic_modelling_page():
                 no_of_topics = topic_slider.slider('Number of Topics', 1, 30, slider_val, 1)
                 st.subheader('Generated Topics')
                 if (data['topics'] == '' or no_of_topics != slider_val) :
-                    df = pd.DataFrame(data['comments'], columns=['Comments'])
+
+                    # loading CSV data to create a pandas dataframe
+                    df = pd.read_csv('sample_comments.csv')
                     topics = tm.fetch_topic(df, no_of_topics)
-                    df.to_csv('sample_comments.csv', index=False)
                     
                     #Dump the topics
                     f = open('store.pckl', 'wb')
                     pickle.dump({'video_id': data['video_id'], 'comments': data['comments'], 'video_meta_data': data['video_meta_data'], 'topics': topics, 'slider_value':no_of_topics }, f)
                     f.close()
                     
-                    st.header('Topics')
                     display_topics(topics)
                 else:
                     display_topics(data['topics'])
@@ -181,7 +205,7 @@ def topic_modelling_page():
                 
 def display_topics(topics):
     for index, topic in enumerate(topics):
-         st.markdown("```Topic {}: {}```".format(index + 1, topic))
+         st.markdown("##### ```Topic {}: {}```".format(index + 1, topic))
     word_cloud_img = tm.generate_word_cloud(topics)
     st.subheader('Word Cloud')
     st.image(word_cloud_img)
