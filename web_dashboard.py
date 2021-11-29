@@ -117,7 +117,7 @@ def video_details_page():
                 display_video_metadata(video_meta_data)
                 # dump result in pickle file
                 f = open('store.pckl', 'wb')
-                pickle.dump({'video_id': video_id, 'comments': comments, 'video_meta_data': video_meta_data, 'topics': ''}, f)
+                pickle.dump({'video_id': video_id, 'comments': comments, 'video_meta_data': video_meta_data, 'topics': '', slider_value:0}, f)
                 f.close()
             else:
                 st.error('Error: {}'.format(err))
@@ -141,7 +141,6 @@ def sentiment_analysis_page():
     data_load_state.text("Done! (using st.cache)")
     st.dataframe(data)
 
-@st.cache
 def load_data(filename):
     df = pd.read_csv(filename)
     return df
@@ -152,15 +151,25 @@ def topic_modelling_page():
             f = open('store.pckl', 'rb')
             data = pickle.load(f)
             f.close()
+
+            topic_slider = st.empty()
+            default_topics = 12
             if data:
-                if(data['topics'] == ''):
+                if (data['slider_value'] == 0):
+                    slider_val = default_topics
+                else:
+                    slider_val = data['slider_value']
+
+                no_of_topics = topic_slider.slider('Number of Topics', 1, 30, slider_val, 1)
+                st.subheader('Generated Topics')
+                if (data['topics'] == '' or no_of_topics != slider_val) :
                     df = pd.DataFrame(data['comments'], columns=['Comments'])
-                    topics = tm.fetch_topic(df)
+                    topics = tm.fetch_topic(df, no_of_topics)
                     df.to_csv('sample_comments.csv', index=False)
                     
                     #Dump the topics
                     f = open('store.pckl', 'wb')
-                    pickle.dump({'video_id': data['video_id'], 'comments': data['comments'], 'video_meta_data': data['video_meta_data'], 'topics': topics}, f)
+                    pickle.dump({'video_id': data['video_id'], 'comments': data['comments'], 'video_meta_data': data['video_meta_data'], 'topics': topics, 'slider_value':no_of_topics }, f)
                     f.close()
                     
                     st.header('Topics')
@@ -171,8 +180,11 @@ def topic_modelling_page():
                 st.error("Please, fetch the comments first, select YouTube Video option from the menu.")
                 
 def display_topics(topics):
-    for topic in topics:
-        st.markdown("```{}```".format(topic))
+    for index, topic in enumerate(topics):
+         st.markdown("```Topic {}: {}```".format(index + 1, topic))
+    word_cloud_img = tm.generate_word_cloud(topics)
+    st.subheader('Word Cloud')
+    st.image(word_cloud_img)
 
 def about_page():
     st.title("About Page")

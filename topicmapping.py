@@ -38,7 +38,7 @@ class TopicMapping(object):
     
     def generate_word_cloud(self, comments):
         long_string = ','.join(comments)
-        word_cloud = WordCloud(background_color='white', max_words=5000, contour_width=5, contour_color='steelblue')
+        word_cloud = WordCloud(background_color='white', max_words=5000, contour_width=5, contour_color='steelblue', width=800, height=500)
         word_cloud.generate(long_string)
         return word_cloud.to_image()
         
@@ -77,12 +77,12 @@ class TopicMapping(object):
         topic_list = self.print_topics(lda, count_vectorizer, number_words)
         return topic_list
         
-    def fetch_topic(self, df):
+    def fetch_topic(self, df, no_of_topics):
         with st.spinner('Generating topics...'):
             comments, result = self.load_dataset(df)
             count_vectorizer = CountVectorizer(stop_words='english')          
             count_data = count_vectorizer.fit_transform(comments) 
-            topics = self.generate_topic(12, 9, count_vectorizer, count_data)
+            topics = self.generate_topic(no_of_topics, 9, count_vectorizer, count_data)
             return topics
 
 topicmapping = TopicMapping()
