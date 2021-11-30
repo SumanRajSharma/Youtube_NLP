@@ -6,6 +6,9 @@ import pickle
 import os
 import pandas as pd
 import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 from decouple import config
 from topicmapping import topicmapping as tm
@@ -138,6 +141,7 @@ def video_details_page():
             if data:
                 display_video_metadata(data['video_meta_data'])
 
+
 def sentiment_analysis_page():
     st.title("Sentiment Analysis on YouTube Video's Comments")
 
@@ -147,23 +151,34 @@ def sentiment_analysis_page():
     search_keyword = search_txtfield.text_input(label="Filter comments using keywords.", value="", key="txt_search")
     btn_submit =  st.button(label="Search")
 
-    st.write(search_keyword)
     # Load data into the dataframe.
     data = load_data("sample_comments.csv")
     df = data
-    df_placeholder.dataframe(data)
+    df_placeholder.dataframe(df, 2000, 420)
     # Notify the reader that the data was successfully loaded.
+
+    btn_sentiment = st.button(label="Run Sentiment Analysis")
+    result_header = st.empty()
+    clean_df_placeholder = st.empty()
 
     if btn_submit:
         if search_keyword:
-            df = data.loc[data['Comments'].str.contains(search_keyword.replace(' ','|'), case=False)]
-            df_placeholder.dataframe(df)
+            df = data.loc[data['Comments'].str.contains(search_keyword.replace(' ','|'), case=False)].reset_index()
+            df_placeholder.dataframe(df, 2000, 420)
     
-    btn_sentiment = st.button(label="Run Sentiment Analysis")
-    clean_df_placeholder = st.empty()
     if btn_sentiment:
-        df = sen.fetch_sentiment(df)
-        clean_df_placeholder.dataframe(df)
+        if search_keyword:
+            df = data.loc[data['Comments'].str.contains(search_keyword.replace(' ','|'), case=False)].reset_index()
+            df_placeholder.dataframe(df)
+        result_df = sen.fetch_sentiment(df)
+        result_df['sentiment'] = result_df['compound'].apply(lambda c: 'positive' if c >0 else ('neutral' if c==0 else 'negative'))
+        result_header.subheader('Results')
+
+        clean_df_placeholder.dataframe(result_df.style.background_gradient(subset=['compound'], cmap="Spectral"), 2000, 420)
+        st.subheader('Positive,Neutral & Negative Sentiments')
+        st.bar_chart(result_df['sentiment'].value_counts(), width=0, height=0, use_container_width=True)
+
+
 
 def load_data(filename):
     df = pd.read_csv(filename)
