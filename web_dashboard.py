@@ -8,6 +8,7 @@ import pandas as pd
 import re
 import seaborn as sns
 import matplotlib.pyplot as plt
+import fontawesome as fa
 
 
 from decouple import config
@@ -94,6 +95,46 @@ def side_panel():
     menu = st.sidebar.radio(
         "Select Demo",
         ('YouTube Video','Sentiment Analysis', 'Topic Modelling', 'About'))
+
+
+    st.sidebar.header("")
+    st.sidebar.markdown('''
+            <a href="mailto:sumanrajsharma2014@gmail.com">
+                Suman Raj Sharma
+            </a>''', unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5, col6, col7 = st.sidebar.columns(7)
+
+    with col1:
+        st.markdown('''
+            <a href="https://github.com/SumanRajSharma" target="blank">
+                <img src="https://img.icons8.com/ios-filled/40/000000/internet.png"/>
+            </a>''', unsafe_allow_html=True)
+    with col2:
+        st.markdown('''
+            <a href="https://twitter.com/sumanrajsharma" target="blank">
+                <img src="https://img.icons8.com/ios-glyphs/40/000000/github.svg"/>
+            </a>''', unsafe_allow_html=True)
+    with col3:
+        st.markdown('''
+            <a href="https://www.linkedin.com/in/sumanrajsharma" target="blank">
+                <img src="https://img.icons8.com/ios-glyphs/40/000000/linkedin-circled--v1.svg"/>
+            </a>''', unsafe_allow_html=True)
+    with col4:
+        st.markdown('''
+            <a href="https://twitter.com/sumanrajsharma" target="blank">
+                <img src="https://img.icons8.com/ios-glyphs/40/000000/twitter-circled--v1.svg"/>
+            </a>''', unsafe_allow_html=True)
+    with col5:
+        st.markdown('''
+            <a href="https://www.instagram.com/data.algo/" target="blank">
+                <img src="https://img.icons8.com/ios-glyphs/40/000000/instagram-circle.svg"/>
+            </a>''', unsafe_allow_html=True)
+    with col6:
+        pass
+    with col7:
+        pass
+
     return menu
 
 def main_panel(menu):
@@ -254,6 +295,7 @@ def display_video_metadata(video_meta_data):
 
 
 if __name__ == '__main__':
+    st.set_page_config(page_title="DataAlgo | Streamlit", page_icon="🖖")
     menu = side_panel()
     main_panel(menu)
 
