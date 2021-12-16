@@ -8,7 +8,6 @@ import pandas as pd
 import re
 import seaborn as sns
 import matplotlib.pyplot as plt
-import fontawesome as fa
 
 
 from decouple import config
