@@ -94,8 +94,10 @@ def side_panel():
     menu = st.sidebar.radio(
         "Select Demo",
         ('YouTube Video','Sentiment Analysis', 'Topic Modelling', 'About'))
+    footer()
+    return menu
 
-
+def footer():
     st.sidebar.header("")
     st.sidebar.markdown('''
             <a href="mailto:sumanrajsharma2014@gmail.com">
@@ -106,12 +108,12 @@ def side_panel():
 
     with col1:
         st.markdown('''
-            <a href="https://github.com/SumanRajSharma" target="blank">
+            <a href="http://sumanrajsharma.tech" target="blank">
                 <img src="https://img.icons8.com/ios-filled/40/000000/internet.png"/>
             </a>''', unsafe_allow_html=True)
     with col2:
         st.markdown('''
-            <a href="https://twitter.com/sumanrajsharma" target="blank">
+            <a href="https://github.com/SumanRajSharma" target="blank">
                 <img src="https://img.icons8.com/ios-glyphs/40/000000/github.svg"/>
             </a>''', unsafe_allow_html=True)
     with col3:
@@ -133,8 +135,6 @@ def side_panel():
         pass
     with col7:
         pass
-
-    return menu
 
 def main_panel(menu):
     switcher = { 
